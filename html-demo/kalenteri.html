@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Studio TsoHa</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width">
+        <link href="../css/bootstrap.css" rel="stylesheet">
+        <link href="../css/bootstrap-theme.css" rel="stylesheet">
+        <link href="../css/main.css" rel="stylesheet">
+    </head>
+    <body>
+        <div class="container">
+            <div id="otsikko" class="row">
+                <div class="col-md-3">Studio TsoHa</div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="panel panel-default">
+                        <ul class="nav nav-pills nav-stacked">
+                            <li><a href="etusivu.html">Etusivu</a></li>
+                            <li><a href="palvelut.html">Palvelut</a></li>
+                            <li class="active"><a href="kalenteri.html">Kalenteri</a></li>
+                            <li><a href="tiedot.html">Yrityksen tiedot</a></li>
+                            <li><a href="liity.html">Liity kanta-asiakkaaksi</a></li>
+                        </ul>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            Kirjaudu sisään
+                        </div>
+                        <div class="panel-body">
+                            <form class="form-horizontal" role="form" action="lomake.html" method="POST">
+                                <div class="form-group">
+                                    <div class="col-md-10">
+                                        <input type="email" class="form-control" id="inputEmail1" name="email" placeholder="Käyttäjänimi">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-md-10">
+                                        <input type="password" class="form-control" id="inputPassword1" name="password" placeholder="Salasana">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-md-10">
+                                        <button type="submit" class="btn btn-default">Kirjaudu</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <h2>Kalenteri</h2>
+                    
+                    <div class="row">
+                        <div class="col-md-2">
+                            <h5>Valitse päivä</h5>
+                        </div>
+                        <div class="col-md-4">
+                            <form class="form-horizontal" role="form" action="lomake.html" method="POST">
+                                <div class="form-group">
+                                    <div class="col-md-8">
+                                        <input type="date" class="form-control" id="pvm" name="pvm" value="2014-03-20">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="submit" class="btn btn-default">Siirry</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-md-5">
+                            <button type="submit" class="btn btn-default">Edellinen päivä</button>
+                            <button type="submit" class="btn btn-default">Seuraava päivä</button>
+                        </div>
+                    </div>
+                    
+                    <table class="table table-striped">
+                        <thead>
+                          <tr>
+                            <th>20.3.2014</th>
+                            <th>Aino</th>
+                            <th>Maiju</th>
+                            <th>Håkan</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>9.00</td>
+                            <td class="danger"></td>
+                            <td><a href="varaus.html" class="vihrea">Varaa</a></td>
+                            <td class="danger"></td>
+                          </tr>
+                          <tr>
+                            <td>10.00</td>
+                            <td class="danger"></td>
+                            <td><a href="varaus.html" class="vihrea">Varaa</a></td>
+                            <td class="danger"></td>
+                          </tr>
+                          <tr>
+                            <td>11.00</td>
+                            <td class="danger"></td>
+                            <td class="danger"></td>
+                            <td class="danger"></td>
+                          </tr>
+                          <tr>
+                            <td>12.00</td>
+                            <td class="danger"></td>
+                            <td class="danger"></td>
+                            <td><a href="varaus.html" class="vihrea">Varaa</a></td>
+                          </tr>
+                          <tr>
+                            <td>13.00</td>
+                            <td><a href="varaus.html" class="vihrea">Varaa</a></td>
+                            <td class="danger"></td>
+                            <td><a href="varaus.html" class="vihrea">Varaa</a></td>
+                          </tr>
+                          <tr>
+                            <td>14.00</td>
+                            <td><a href="varaus.html" class="vihrea">Varaa</a></td>
+                            <td class="danger"></td>
+                            <td><a href="varaus.html" class="vihrea">Varaa</a></td>
+                          </tr>
+                          <tr>
+                            <td>15.00</td>
+                            <td><a href="varaus.html" class="vihrea">Varaa</a></td>
+                            <td><a href="varaus.html" class="vihrea">Varaa</a></td>
+                            <td><a href="varaus.html" class="vihrea">Varaa</a></td>
+                          </tr>
+                          <tr>
+                            <td>16.00</td>
+                            <td><a href="varaus.html" class="vihrea">Varaa</a></td>
+                            <td><a href="varaus.html" class="vihrea">Varaa</a></td>
+                            <td class="danger"></td>
+                          </tr>
+                        </tbody>
+                      </table>
+
+                    
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

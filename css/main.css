@@ -1,0 +1,22 @@
+/* 
+    Created on : Mar 20, 2014, 2:11:59 PM
+    Author     : iivo
+*/
+
+#otsikko {
+    background-color: #c9e2b3;
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+.varattu {
+    background-color: #ac2925 !important;
+}
+
+a.vihrea {
+    color: #4cae4c;
+}
+
+a.punainen {
+    color: #c9302c;
+}

@@ -1,0 +1,5 @@
+<?php
+
+$kayttajanimi = "kayttajatunnuksesi";
+$salasana = "salasana";
+$tietokanta = "tsoha";
