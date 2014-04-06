@@ -32,5 +32,6 @@ INSERT INTO varaus (tunnus, tyontekija, asiakas, paivamaara, aloitusaika, kesto,
 (1, 1, 1, '2014-03-20', '09:00:00', 240, 'permanentti'),
 (2, 2, 3, '2014-03-20', '11:00:00', 240, 'hiusten pidennys'),
 (3, 3, 2, '2014-03-20', '09:00:00', 180, 'hiusten höyläys'),
-(4, 3, 1, '2014-03-20', '16:00:00', 60, 'kaljun värjäys');
+(4, 3, 1, '2014-03-20', '16:00:00', 60, 'kaljun värjäys'),
+(5, 3, 1, '2014-04-04', '15:00:00', 60, 'vaalennus');
 

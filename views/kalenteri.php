@@ -1,84 +1,65 @@
 <h2>Kalenteri</h2>
 
+<p>Todo: ei menneitä päiviä, päivämäärän validointi, varauksen tekeminen</p>
+
 <div class="row">
-    <div class="col-md-2">
-        <h5>Valitse päivä</h5>
-    </div>
-    <div class="col-md-4">
-        <form class="form-horizontal" role="form" action="lomake.html" method="POST">
+    <form class="form-horizontal" role="form" action="kalenteri.php" method="GET">
+        <input type="hidden" name="palvelu" value="<?php echo $data->palvelu; ?>" />
+        <div class="col-md-2">
+            <h5>Valitse päivä</h5>
+        </div>
+        <div class="col-md-4">
             <div class="form-group">
                 <div class="col-md-8">
-                    <input type="date" class="form-control" id="pvm" name="pvm" value="2014-03-20">
+                    <input type="date" class="form-control" id="pvm" name="paivamaara" value="<?php echo $data->paivamaara; ?>">
                 </div>
                 <div class="col-md-3">
-                    <button type="submit" class="btn btn-default">Siirry</button>
+                    <button type="submit" name="siirry" class="btn btn-default">Siirry</button>
                 </div>
             </div>
-        </form>
-    </div>
-    <div class="col-md-5">
-        <button type="submit" class="btn btn-default">Edellinen päivä</button>
-        <button type="submit" class="btn btn-default">Seuraava päivä</button>
-    </div>
+
+        </div>
+        <div class="col-md-5">
+            <button type="submit" name="edellinen" class="btn btn-default">Edellinen päivä</button>
+            <button type="submit" name="seuraava" class="btn btn-default">Seuraava päivä</button>
+        </div>
+    </form>
 </div>
 
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>20.3.2014</th>
-            <th>Aino</th>
-            <th>Maiju</th>
-            <th>Håkan</th>
+            <th><?php echo $data->paivamaara; ?></th>
+            <?php
+                foreach ($data->tyontekijat as $tyontekija) { ?>
+                <th><?php echo $tyontekija->getNimi(); ?></th>
+            <?php }
+            
+            ?>
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <td>9.00</td>
-            <td class="danger"></td>
-            <td><a href="varaus.php" class="vihrea">Varaa</a></td>
-            <td class="danger"></td>
-        </tr>
-        <tr>
-            <td>10.00</td>
-            <td class="danger"></td>
-            <td><a href="varaus.php" class="vihrea">Varaa</a></td>
-            <td class="danger"></td>
-        </tr>
-        <tr>
-            <td>11.00</td>
-            <td class="danger"></td>
-            <td class="danger"></td>
-            <td class="danger"></td>
-        </tr>
-        <tr>
-            <td>12.00</td>
-            <td class="danger"></td>
-            <td class="danger"></td>
-            <td><a href="varaus.php" class="vihrea">Varaa</a></td>
-        </tr>
-        <tr>
-            <td>13.00</td>
-            <td><a href="varaus.php" class="vihrea">Varaa</a></td>
-            <td class="danger"></td>
-            <td><a href="varaus.php" class="vihrea">Varaa</a></td>
-        </tr>
-        <tr>
-            <td>14.00</td>
-            <td><a href="varaus.php" class="vihrea">Varaa</a></td>
-            <td class="danger"></td>
-            <td><a href="varaus.php" class="vihrea">Varaa</a></td>
-        </tr>
-        <tr>
-            <td>15.00</td>
-            <td><a href="varaus.php" class="vihrea">Varaa</a></td>
-            <td><a href="varaus.php" class="vihrea">Varaa</a></td>
-            <td><a href="varaus.php" class="vihrea">Varaa</a></td>
-        </tr>
-        <tr>
-            <td>16.00</td>
-            <td><a href="varaus.php" class="vihrea">Varaa</a></td>
-            <td><a href="varaus.php" class="vihrea">Varaa</a></td>
-            <td class="danger"></td>
-        </tr>
+        <?php
+        
+        foreach ($data->tyoajat as $aika) {
+            echo '<tr><td>' . $aika['tunti'] . ':' . sprintf('%02s',$aika['minuutti']) . '</td>';
+            
+            foreach ($data->tyontekijat as $tyontekija) { 
+                if($tyontekija->getKalenteri()[$aika['tunti']][$aika['minuutti']]) {
+                    echo '<td class="danger"></td>';
+                } else {
+                    echo '<td><a href="varaus.php" class="vihrea">Varaa</a></td>';
+                }
+            }
+            
+            echo '</tr>';
+            
+        }
+        
+            
+
+        ?>
+
+        
     </tbody>
 </table>

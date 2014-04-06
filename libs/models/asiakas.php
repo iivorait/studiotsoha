@@ -110,7 +110,7 @@ class Asiakas {
     /* Etsitään kannasta käyttäjätunnuksella ja salasanalla käyttäjäriviä */
 
     public static function etsiKayttajaTunnuksilla($sahkoposti, $salasana) {
-        $sql = "SELECT * from asiakas where sahkoposti = ? AND salasana = ? AND kantaasiakas = 1 LIMIT 1";
+        $sql = "SELECT * FROM asiakas WHERE sahkoposti = ? AND salasana = ? AND kantaasiakas = 1 LIMIT 1";
         $kysely = getTietokantayhteys()->prepare($sql);
         $kysely->execute(array($sahkoposti, $salasana));
 

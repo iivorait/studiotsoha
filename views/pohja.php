@@ -92,6 +92,15 @@
                         echo '<div class="alert alert-danger">' . $data->virhe . '</div>';
                     }
                     
+                    if (!empty($_SESSION['ilmoitus'])) { 
+                        echo '<div class="alert alert-success">' . $_SESSION['ilmoitus'] . '</div>';
+                        unset($_SESSION['ilmoitus']);
+                    }
+                    
+                    if (!empty($data->onnistui)) { 
+                        echo '<div class="alert alert-success">' . $data->onnistui . '</div>';
+                    }
+                    
                     require 'views/' . $sivu; ?>
                     
                 </div>

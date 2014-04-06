@@ -8,6 +8,7 @@ class Tyontekija {
     private $johtaja;
     private $kuvaus;
     private $salasana;
+    private $kalenteri;
     
     /*function __construct($tunnus, $sahkoposti, $nimi, $johtaja, $kuvaus, $salasana) {
         $this->tunnus = $tunnus;
@@ -65,11 +66,40 @@ class Tyontekija {
     public function setSalasana($salasana) {
         $this->salasana = $salasana;
     }
+    
+    public function getKalenteri() {
+        return $this->kalenteri;
+    }
+
+    public function lataaKalenteri($paivamaara) {
+        $sql = "SELECT aloitusaika, kesto FROM varaus WHERE tyontekija = $this->tunnus AND paivamaara = ?";
+        $kysely = getTietokantayhteys()->prepare($sql);
+        $kysely->execute(array($paivamaara));
+        
+        $kalenteri = array();
+
+        foreach($kysely->fetchAll(PDO::FETCH_OBJ) as $tulos) {
+            $aika = explode(":",$tulos->aloitusaika); //aika[0] = tunnit, aika[1] = minuutit
+            $aikaajaljella = $tulos->kesto;
+            
+            while($aikaajaljella > 0) {
+                $kalenteri[(int)$aika[0]][(int)$aika[1]] = true;
+                $aika[1] += 15;
+                if($aika[1] == 60) {
+                    $aika[0]++;
+                    $aika[1] = 0;
+                }
+                $aikaajaljella -= 15;
+            }        
+        }
+        
+        $this->kalenteri = $kalenteri;
+    }
 
     /* Etsitään kannasta käyttäjätunnuksella ja salasanalla käyttäjäriviä */
 
     public static function etsiKayttajaTunnuksilla($sahkoposti, $salasana) {
-        $sql = "SELECT * from tyontekija where sahkoposti = ? AND salasana = ? LIMIT 1";
+        $sql = "SELECT tunnus FROM tyontekija WHERE sahkoposti = ? AND salasana = ? LIMIT 1";
         $kysely = getTietokantayhteys()->prepare($sql);
         $kysely->execute(array($sahkoposti, $salasana));
 
@@ -77,17 +107,49 @@ class Tyontekija {
         
         if ($tulos == null) {
             return null;
-        } else {
-            $kayttaja = new Tyontekija();
-            $kayttaja->setTunnus($tulos->tunnus);
-            $kayttaja->setSahkoposti($tulos->sahkoposti);
-            $kayttaja->setNimi($tulos->nimi);
-            $kayttaja->setJohtaja($tulos->johtaja);
-            $kayttaja->setKuvaus($tulos->kuvaus);
-            $kayttaja->setSalasana($tulos->salasana);
-   
-            return $kayttaja;
+        } else {   
+            return Tyontekija::haeTyontekija($tulos->tunnus);
         }
-    } 
+    }
+
+    public static function haeTyontekija($id) {
+        $sql = "SELECT * FROM tyontekija WHERE tunnus = ? LIMIT 1";
+        $kysely = getTietokantayhteys()->prepare($sql);
+        $kysely->execute(array($id));
+
+        $tulos = $kysely->fetchObject();
+        
+        if ($tulos == null) {
+            return null;
+        } else {
+            $tyontekija = new Tyontekija();
+            $tyontekija->setTunnus($tulos->tunnus);
+            $tyontekija->setSahkoposti($tulos->sahkoposti);
+            $tyontekija->setNimi($tulos->nimi);
+            $tyontekija->setJohtaja($tulos->johtaja);
+            $tyontekija->setKuvaus($tulos->kuvaus);
+            $tyontekija->setSalasana($tulos->salasana);
+   
+            return $tyontekija;
+        }
+    }
+    
+    public static function haePalveluntarjoajat($palvelu_id = 0) {
+        if($palvelu_id != 0) {
+            $sql = "SELECT tyontekija FROM palveluntarjoaja WHERE palvelu = ?";
+        } else {
+            $sql = "SELECT tunnus AS tyontekija FROM tyontekija";
+        }
+        $kysely = getTietokantayhteys()->prepare($sql);
+        $kysely->execute(array($palvelu_id));
+        
+        $palveluntarjoajat = array();
+
+        foreach($kysely->fetchAll(PDO::FETCH_OBJ) as $tulos) {
+            $palveluntarjoajat[] = Tyontekija::haeTyontekija($tulos->tyontekija);
+        }
+
+        return $palveluntarjoajat;
+    }
 
 }

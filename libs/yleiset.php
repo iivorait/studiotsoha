@@ -1,9 +1,14 @@
 <?php
-
+require_once 'libs/tietokantayhteys.php';
 require_once 'libs/models/asiakas.php';
 require_once 'libs/models/tyontekija.php';
+require_once 'libs/models/varaus.php';
+require_once 'libs/models/palvelu.php';
 //Mallit täytyy ladata ennen istunnon aloittamista, jotta istuntoon tallennetut muuttujat deserialisoituvat oikein
 session_start(); 
+
+define('tyoaikaAlkaa', 9);
+define('tyoaikaLoppuu', 17);
 
 function naytaNakyma($sivu, $data = array()) {
     $data = (object)$data;
@@ -46,4 +51,8 @@ function onkoTyontekija() {
 
 function onkoJohtaja() {
     return $_SESSION['kirjautunut']->getJohtaja();
+}
+
+function getKirjautunutKayttaja() {
+    return $_SESSION['kirjautunut'];
 }

@@ -10,8 +10,8 @@ function getTietokantayhteys() {
         require 'tietokantatunnukset.php';
 
         //Yhteysolion luominen
-        $yhteys = new PDO("mysql:host=localhost;dbname=$tietokanta", $kayttajanimi, $salasana);
-
+        $yhteys = new PDO("mysql:host=$osoite;dbname=$tietokanta", $kayttajanimi, $salasana, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+        
         //Seuravaa komento pyytää PDO:ta tuottamaan poikkeuksen aina kun jossain on virhe.
         //Kannattaa käyttää, oletuksena luokka ei raportoi virhetiloja juuri mitenkään!
         $yhteys->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

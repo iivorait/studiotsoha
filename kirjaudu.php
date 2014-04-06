@@ -6,14 +6,14 @@ require_once 'libs/models/asiakas.php';
 require_once 'libs/models/tyontekija.php';
 
 if (empty($_POST["email"])) {
-    naytaNakyma("kirjautuminen.php", array(
+    naytaNakyma("etusivu.php", array(
         'kirjautumisvirhe' => "Kirjautuminen epäonnistui! Et antanut käyttäjätunnusta.",
     ));
 }
 $sahkoposti = $_POST["email"];
 
 if (empty($_POST["password"])) {
-    naytaNakyma("kirjautuminen.php", array(
+    naytaNakyma("etusivu.php", array(
         'kayttaja' => $sahkoposti,
         'kirjautumisvirhe' => "Kirjautuminen epäonnistui! Et antanut salasanaa.",
     ));
