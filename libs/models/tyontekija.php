@@ -10,15 +10,6 @@ class Tyontekija {
     private $salasana;
     private $kalenteri;
     
-    /*function __construct($tunnus, $sahkoposti, $nimi, $johtaja, $kuvaus, $salasana) {
-        $this->tunnus = $tunnus;
-        $this->sahkoposti = $sahkoposti;
-        $this->nimi = $nimi;
-        $this->johtaja = $johtaja;
-        $this->kuvaus = $kuvaus;
-        $this->salasana = $salasana;
-    } */
-    
     public function getTunnus() {
         return $this->tunnus;
     }
@@ -95,13 +86,27 @@ class Tyontekija {
         
         $this->kalenteri = $kalenteri;
     }
+    
+     public function haeTarjotutPalvelut() {
+        $sql = "SELECT palvelu FROM palveluntarjoaja WHERE tyontekija = ?";
+        $kysely = getTietokantayhteys()->prepare($sql);
+        $kysely->execute(array($this->tunnus));
+        
+        $palvelut = array();
+
+        foreach($kysely->fetchAll(PDO::FETCH_OBJ) as $tulos) {
+            $palvelut[] = Palvelu::haePalvelu($tulos->palvelu);
+        }
+
+        return $palvelut;
+    }
 
     /* Etsitään kannasta käyttäjätunnuksella ja salasanalla käyttäjäriviä */
 
     public static function etsiKayttajaTunnuksilla($sahkoposti, $salasana) {
         $sql = "SELECT tunnus FROM tyontekija WHERE sahkoposti = ? AND salasana = ? LIMIT 1";
         $kysely = getTietokantayhteys()->prepare($sql);
-        $kysely->execute(array($sahkoposti, $salasana));
+        $kysely->execute(array($sahkoposti, md5($salasana . salasanaSuola)));
 
         $tulos = $kysely->fetchObject();
         
@@ -151,5 +156,7 @@ class Tyontekija {
 
         return $palveluntarjoajat;
     }
+    
+   
 
 }

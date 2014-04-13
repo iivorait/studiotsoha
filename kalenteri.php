@@ -2,9 +2,12 @@
 
 require_once 'libs/yleiset.php';
 
-if(isset($_GET['palvelu'])) {
-    $palvelu_id = $_GET['palvelu'];
-} 
+if(!empty($_GET['palvelu'])) {
+    $palvelu = Palvelu::haePalvelu($_GET['palvelu']);
+} else {
+    $palvelu = new Palvelu();
+    $palvelu->setKesto(15);
+}
 
 if(isset($_GET['paivamaara'])) {
     if(isset($_GET['edellinen'])) {
@@ -18,26 +21,17 @@ if(isset($_GET['paivamaara'])) {
     $paivamaara = "2014-03-20"; //myöhemmin date("Y-m-d") tai date("d.m.Y")
 }
 
-$tyontekijat = Tyontekija::haePalveluntarjoajat($palvelu_id);
+$tyontekijat = Tyontekija::haePalveluntarjoajat($palvelu->getTunnus());
 
 foreach ($tyontekijat as $tyontekija) {
     $tyontekija->lataaKalenteri($paivamaara);
 }
 
-$tyoajat = array();
-
-for($tunti = tyoaikaAlkaa; $tunti < tyoaikaLoppuu; $tunti++) {
-    for($minuutti = 00; $minuutti < 60; $minuutti += 15) {
-        $tyoajat[] = array(
-            'tunti' => $tunti, 
-            'minuutti' => $minuutti
-        );
-    }
-}
+$tyoajat = getTyoajat();
 
 naytaNakyma('kalenteri.php', array(
     'tyontekijat' => $tyontekijat,
     'tyoajat' => $tyoajat,
-    'palvelu' => $palvelu_id,
+    'palvelu' => $palvelu,
     'paivamaara' => $paivamaara
 ));

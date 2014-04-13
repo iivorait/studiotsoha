@@ -4,11 +4,11 @@ require_once 'libs/models/asiakas.php';
 require_once 'libs/models/tyontekija.php';
 require_once 'libs/models/varaus.php';
 require_once 'libs/models/palvelu.php';
+require_once 'libs/models/asiakas.php';
 //Mallit täytyy ladata ennen istunnon aloittamista, jotta istuntoon tallennetut muuttujat deserialisoituvat oikein
 session_start(); 
 
-define('tyoaikaAlkaa', 9);
-define('tyoaikaLoppuu', 17);
+require_once 'libs/asetukset.php';
 
 function naytaNakyma($sivu, $data = array()) {
     $data = (object)$data;
@@ -55,4 +55,23 @@ function onkoJohtaja() {
 
 function getKirjautunutKayttaja() {
     return $_SESSION['kirjautunut'];
+}
+
+function setKirjautunutKayttaja($kayttaja) {
+    $_SESSION['kirjautunut'] = $kayttaja;
+}
+
+function getTyoajat() {
+    $tyoajat = array();
+
+    for($tunti = tyoaikaAlkaa; $tunti < tyoaikaLoppuu; $tunti++) {
+        for($minuutti = 00; $minuutti < 60; $minuutti += 15) {
+            $tyoajat[] = array(
+                'tunti' => $tunti, 
+                'minuutti' => $minuutti
+            );
+        }
+    }
+    
+    return $tyoajat;
 }

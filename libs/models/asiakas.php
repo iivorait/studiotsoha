@@ -12,20 +12,7 @@ class Asiakas {
     private $postitoimipaikka;
     private $puhelinnumero;
     private $salasana;
-
-    /*function __construct($tunnus, $kantaasiakas, $sahkoposti, $etunimi, $sukunimi, $lahiosoite, $postinumero, $postitoimipaikka, $puhelinnumero, $salasana) {
-        $this->tunnus = $tunnus;
-        $this->kantaasiakas = $kantaasiakas;
-        $this->sahkoposti = $sahkoposti;
-        $this->etunimi = $etunimi;
-        $this->sukunimi = $sukunimi;
-        $this->lahiosoite = $lahiosoite;
-        $this->postinumero = $postinumero;
-        $this->postitoimipaikka = $postitoimipaikka;
-        $this->puhelinnumero = $puhelinnumero;
-        $this->salasana = $salasana; 
-    }*/
-
+    private $virheet = array();
 
     public function getTunnus() {
         return $this->tunnus;
@@ -66,6 +53,10 @@ class Asiakas {
     public function getSalasana() {
         return $this->salasana;
     }
+    
+    public function getVirheet() {
+        return $this->virheet;
+    }
 
     public function setTunnus($tunnus) {
         $this->tunnus = $tunnus;
@@ -76,35 +67,146 @@ class Asiakas {
     }
 
     public function setSahkoposti($sahkoposti) {
+        if (trim($sahkoposti) == '') {
+            $this->virheet['sahkoposti'] = "Sähköpostiosoite ei saa olla tyhjä.";
+        } else if(filter_var($sahkoposti, FILTER_VALIDATE_EMAIL) != $sahkoposti) {
+            $this->virheet['sahkoposti'] = "Sähköpostiosoite ei ole oikean muotoinen.";
+        } else if(!Asiakas::onkoOsoiteVapaa($sahkoposti) && $this->sahkoposti!=$sahkoposti) {
+            $this->virheet['sahkoposti'] = "Sähköpostiosoite on varattu.";
+        } else {
+            unset($this->virheet['sahkoposti']);
+        }
+        
         $this->sahkoposti = $sahkoposti;
     }
 
     public function setEtunimi($etunimi) {
         $this->etunimi = $etunimi;
+        
+        if (trim($etunimi) == '') {
+            $this->virheet['etunimi'] = "Etunimi ei saa olla tyhjä.";
+        } else {
+            unset($this->virheet['etunimi']);
+        }
     }
 
     public function setSukunimi($sukunimi) {
         $this->sukunimi = $sukunimi;
+        
+        if (trim($sukunimi) == '') {
+            $this->virheet['sukunimi'] = "Sukunimi ei saa olla tyhjä.";
+        } else {
+            unset($this->virheet['sukunimi']);
+        }
     }
 
     public function setLahiosoite($lahiosoite) {
         $this->lahiosoite = $lahiosoite;
+        
+        if (trim($lahiosoite) == '') {
+            $this->virheet['lahiosoite'] = "Lähiosoite ei saa olla tyhjä.";
+        } else {
+            unset($this->virheet['lahiosoite']);
+        }
     }
 
     public function setPostinumero($postinumero) {
         $this->postinumero = $postinumero;
+        
+        if (!is_numeric($postinumero)) {
+            $this->virheet['postinumero'] = "Postinumeron tulee olla numero.";
+        } else if ($postinumero <= 0) {
+            $this->virheet['postinumero'] = "Postinumeron täytyy olla positiivinen.";
+        } else {
+            unset($this->virheet['postinumero']);
+        }
     }
 
     public function setPostitoimipaikka($postitoimipaikka) {
         $this->postitoimipaikka = $postitoimipaikka;
+        
+        if (trim($postitoimipaikka) == '') {
+            $this->virheet['postitoimipaikka'] = "Postitoimipaikka ei saa olla tyhjä.";
+        } else {
+            unset($this->virheet['postitoimipaikka']);
+        }
     }
 
     public function setPuhelinnumero($puhelinnumero) {
+        $puhelinnumero = str_replace("+358","0", str_replace(" ","",$puhelinnumero));
+        
         $this->puhelinnumero = $puhelinnumero;
+        
+        if (!is_numeric($puhelinnumero)) {
+            $this->virheet['puhelinnumero'] = "Puhelinnumeron tulee olla numero.";
+        } else if ($puhelinnumero <= 0) {
+            $this->virheet['puhelinnumero'] = "Puhelinnumeron täytyy olla positiivinen.";
+        } else {
+            unset($this->virheet['puhelinnumero']);
+        }
     }
 
     public function setSalasana($salasana) {
         $this->salasana = $salasana;
+        
+        if (trim($salasana) == '') {
+            $this->virheet['salasana'] = "Salasana ei saa olla tyhjä.";
+        } else {
+            unset($this->virheet['salasana']);
+        }
+    }
+    
+    public function salasananTarkistus($salasana) {
+        if (trim($salasana) == '') {
+            $this->virheet['salasana'] = "Salasanan tarkistus ei saa olla tyhjä.";
+            $this->salasana = '';
+        } else if ($salasana != $this->salasana) {
+            $this->virheet['salasana'] = "Salasanan tarkistus ei täsmännyt";
+            $this->salasana = '';
+        } else {
+            unset($this->virheet['salasana']);
+        }
+    }
+    
+    public function onkoKelvollinen() {
+        return empty($this->virheet);
+    }
+    
+    public function lisaaKantaan() {
+        $sql = "INSERT INTO asiakas "
+                . "(kantaasiakas, sahkoposti, etunimi, sukunimi, lahiosoite, postinumero, postitoimipaikka, puhelinnumero, salasana) "
+                . "VALUES (?,?,?,?,?,?,?,?,?)";
+        $kysely = getTietokantayhteys()->prepare($sql);
+        
+        $ok = $kysely->execute(array(1, $this->sahkoposti, $this->etunimi, 
+            $this->sukunimi, $this->lahiosoite, $this->postinumero, $this->postitoimipaikka,
+            $this->puhelinnumero, md5($this->salasana . salasanaSuola)));
+        
+        return $ok;
+    }
+    
+    public function paivitaKantaan() {
+        $sql = "SELECT salasana FROM asiakas WHERE tunnus = ?";
+        $salasananhakukysely = getTietokantayhteys()->prepare($sql);
+        $salasananhakukysely->execute(array($this->tunnus));
+
+        $tulos = $salasananhakukysely->fetchObject();
+        $salasana = $tulos->salasana;
+        
+        $sql = "UPDATE asiakas SET sahkoposti = ?, etunimi = ?, sukunimi = ?, "
+                . "lahiosoite = ?, postinumero = ?, postitoimipaikka = ?, "
+                . "puhelinnumero = ?, salasana = ? WHERE tunnus = ?";
+        
+        if($salasana != $this->salasana) { //uuden salasanan asetus
+            $salasana = md5($this->salasana . salasanaSuola);
+        }
+        
+        $kysely = getTietokantayhteys()->prepare($sql);
+        $ok = $kysely->execute(array($this->sahkoposti, $this->etunimi, $this->sukunimi,
+            $this->lahiosoite, $this->postinumero, $this->postitoimipaikka,
+            $this->puhelinnumero, $salasana, $this->tunnus));
+        
+        return $ok;
     }
 
     /* Etsitään kannasta käyttäjätunnuksella ja salasanalla käyttäjäriviä */
@@ -112,7 +214,7 @@ class Asiakas {
     public static function etsiKayttajaTunnuksilla($sahkoposti, $salasana) {
         $sql = "SELECT * FROM asiakas WHERE sahkoposti = ? AND salasana = ? AND kantaasiakas = 1 LIMIT 1";
         $kysely = getTietokantayhteys()->prepare($sql);
-        $kysely->execute(array($sahkoposti, $salasana));
+        $kysely->execute(array($sahkoposti, md5($salasana . salasanaSuola)));
 
         $tulos = $kysely->fetchObject();
         
@@ -133,6 +235,22 @@ class Asiakas {
    
             return $kayttaja;
         }
+    }
+    
+    public static function onkoOsoiteVapaa($sahkoposti) {
+        $sql = "SELECT COUNT(1) AS asiakas, "
+                . "(SELECT COUNT(1) FROM tyontekija WHERE sahkoposti = ?) AS tyontekija "
+                . "FROM asiakas WHERE sahkoposti = ?";
+        $kysely = getTietokantayhteys()->prepare($sql);
+        $kysely->execute(array($sahkoposti, $sahkoposti));
+
+        $tulos = $kysely->fetchObject();
+        
+        if($tulos->asiakas > 0 || $tulos->tyontekija > 0) {
+            return false;
+        }
+        
+        return true;
     }
 
 

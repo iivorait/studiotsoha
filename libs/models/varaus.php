@@ -8,17 +8,10 @@ class Varaus {
     private $paivamaara;
     private $aloitusaika;
     private $kesto;
+    private $palvelutunnus;
     private $palvelu;
-    
-    /*function __construct($tunnus, $tyontekija, $asiakas, $paivamaara, $aloitusaika, $kesto, $palvelu) {
-        $this->tunnus = $tunnus;
-        $this->tyontekija = $tyontekija;
-        $this->asiakas = $asiakas;
-        $this->paivamaara = $paivamaara;
-        $this->aloitusaika = $aloitusaika;
-        $this->kesto = $kesto;
-        $this->palvelu = $palvelu;
-    }*/
+    private $toivomukset;
+    private $virheet = array();
 
     public function getTunnus() {
         return $this->tunnus;
@@ -33,7 +26,7 @@ class Varaus {
     }
 
     public function getPaivamaara() {
-        return date("d.m.Y", strtotime($this->paivamaara));
+        return $this->paivamaara;
     }
 
     public function getAloitusaika() {
@@ -43,9 +36,21 @@ class Varaus {
     public function getKesto() {
         return $this->kesto;
     }
+    
+    public function getPalvelutunnus() {
+        return $this->palvelutunnus;
+    }
 
     public function getPalvelu() {
         return $this->palvelu;
+    }
+    
+    public function getToivomukset() {
+        return $this->toivomukset;
+    }
+
+    public function getVirheet() {
+        return $this->virheet;
     }
 
     public function setTunnus($tunnus) {
@@ -53,7 +58,13 @@ class Varaus {
     }
 
     public function setTyontekija($tyontekija) {
-        $this->tyontekija = $tyontekija;
+        $this->tyontekija = Tyontekija::haeTyontekija($tyontekija);
+        
+        if ($this->tyontekija == null) {
+            $this->virheet['tyontekija'] = "Valittua kampaajaa ei löytynyt";
+        } else {
+            unset($this->virheet['tyontekija']);
+        }
     }
 
     public function setAsiakas($asiakas) {
@@ -62,20 +73,50 @@ class Varaus {
 
     public function setPaivamaara($paivamaara) {
         $this->paivamaara = $paivamaara;
+        
+        if (trim($paivamaara) == '') {
+            $this->virheet['paivamaara'] = "Päivämäärä ei voi olla tyhjä";
+        } else {
+            unset($this->virheet['paivamaara']);
+        }
     }
 
     public function setAloitusaika($aloitusaika) {
         $this->aloitusaika = $aloitusaika;
+        
+        if (trim($aloitusaika) == '') {
+            $this->virheet['aloitusaika'] = "Aloitusaika ei voi olla tyhjä";
+        } else {
+            unset($this->virheet['aloitusaika']);
+        }
     }
 
     public function setKesto($kesto) {
         $this->kesto = $kesto;
     }
+    
+    public function setPalvelutunnus($palvelutunnus) {
+        $this->palvelutunnus = $palvelutunnus;
+    }
 
     public function setPalvelu($palvelu) {
         $this->palvelu = $palvelu;
+        
+        if (trim($palvelu) == '') {
+            $this->virheet['palvelu'] = "Et valinnut palvelua";
+        } else {
+            unset($this->virheet['palvelu']);
+        }
     }
     
+    public function setToivomukset($toivomukset) {
+        $this->toivomukset = $toivomukset;
+    }
+    
+    public function onkoKelvollinen() {
+        return empty($this->virheet);
+    }
+
     public function voikoPeruuttaa() {
         if($this->paivamaara > date("Y-m-d")) {
             return true;
@@ -88,9 +129,21 @@ class Varaus {
         $lopetusaika = date('G:i',strtotime($this->aloitusaika) + 60 * $this->kesto);
         return $aloitusaika . " - " . $lopetusaika;
     }
+    
+    public function lisaaKantaan() {
+        $sql = "INSERT INTO varaus "
+                . "(tyontekija, asiakas, paivamaara, aloitusaika, kesto, palvelu, toivomukset) "
+                . "VALUES (?,?,?,?,?,?,?)";
+        $kysely = getTietokantayhteys()->prepare($sql);
+        
+        $ok = $kysely->execute(array($this->tyontekija->getTunnus(), $this->asiakas, $this->paivamaara,
+            date('H:i:s', strtotime($this->aloitusaika)), $this->kesto, $this->palvelu, $this->toivomukset));
+        
+        return $ok;
+    }
 
     public static function haeAsiakkaanVaraukset($asiakas) {
-        $sql = "SELECT varaus.tunnus, paivamaara, aloitusaika, kesto, palvelu, tyontekija.nimi as kampaaja "
+        $sql = "SELECT varaus.tunnus, paivamaara, aloitusaika, kesto, palvelu, tyontekija.tunnus as kampaaja "
                 . "FROM varaus, tyontekija "
                 . "WHERE asiakas = ? AND tyontekija = tyontekija.tunnus "
                 . "ORDER BY paivamaara DESC";

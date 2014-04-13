@@ -21,7 +21,9 @@
                             <li><a href="palvelut.php">Palvelut</a></li>
                             <li><a href="kalenteri.php">Kalenteri</a></li>
                             <li><a href="tiedot.php">Yrityksen tiedot</a></li>
-                            <li><a href="liity.php">Liity kanta-asiakkaaksi</a></li>
+                            <?php if(!onkoKirjautunut()) { //kirjautuneille ei näytetä kanta-asiakaslomaketta ?>
+                                <li><a href="liity.php">Liity kanta-asiakkaaksi</a></li>
+                            <?php } ?>
                         </ul>
                     </div>
                     <?php
@@ -90,6 +92,11 @@
                     <?php 
                     if (!empty($data->virhe)) { 
                         echo '<div class="alert alert-danger">' . $data->virhe . '</div>';
+                    }
+                    
+                    if (!empty($_SESSION['virheilmoitus'])) { 
+                        echo '<div class="alert alert-danger">' . $_SESSION['virheilmoitus'] . '</div>';
+                        unset($_SESSION['virheilmoitus']);
                     }
                     
                     if (!empty($_SESSION['ilmoitus'])) { 

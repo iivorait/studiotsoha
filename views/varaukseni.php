@@ -3,7 +3,7 @@
 <?php
 if (empty($data->varaukset)) {
     echo '<p>Sinulla ei ole yhtään varauksia.</p>';
-} else {
+} else {    
     ?>
         <table class="table table-striped">
             <thead>
@@ -18,9 +18,9 @@ if (empty($data->varaukset)) {
             <tbody>
                 <?php foreach ($data->varaukset as $varaus) { ?>
                     <tr>
-                        <td><?php echo $varaus->getPaivamaara(); ?></td>
+                        <td><?php echo date("d.m.Y", strtotime($varaus->getPaivamaara())); ?></td>
                         <td><?php echo $varaus->getAjankohta(); ?></td>
-                        <td><?php echo $varaus->getTyontekija(); ?></td>
+                        <td><?php echo $varaus->getTyontekija()->getNimi(); ?></td>
                         <td><?php echo $varaus->getPalvelu(); ?></td>
                         <td>
                             <?php if($varaus->voikoPeruuttaa()) { ?>
@@ -35,6 +35,8 @@ if (empty($data->varaukset)) {
         </table>
     <?php
 } 
-?>
 
-<p><a href="#">Näytä vanhemmat varaukset</a>
+if(!$data->naytavanhat) { ?>
+    <p><a href="varaukseni.php?naytakaikki">Näytä myös vanhemmat varaukset</a>
+<?php 
+}
