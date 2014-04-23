@@ -2,6 +2,9 @@
 
 require_once 'libs/yleiset.php';
 
+//Poistetaan mahdollinen keskeneräinen varaus uutta varten
+unset($_SESSION['keskenerainenvaraus']);
+
 if (!empty($_REQUEST['palvelu'])) {
     $valittupalvelu = Palvelu::haePalvelu($_REQUEST['palvelu']);
 

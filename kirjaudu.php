@@ -28,7 +28,12 @@ if($kayttaja == null) {
 
 if ($kayttaja!=null) { //Tunnukset oikein
     $_SESSION['kirjautunut'] = $kayttaja;
-    header('Location: etusivu.php');
+    
+    if(isset($_SESSION['keskenerainenvaraus'])) { //palataan varauksen tallennukseen jos on keskeneräinen varaus
+        header('Location: varaatallennus.php');
+    } else {    
+        header('Location: etusivu.php');
+    }
 } else { //Tunnukset väärin
     naytaNakyma("etusivu.php", array(
         'kayttaja' => $sahkoposti,

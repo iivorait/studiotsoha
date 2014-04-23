@@ -118,7 +118,14 @@ class Varaus {
     }
 
     public function voikoPeruuttaa() {
-        if($this->paivamaara > date("Y-m-d")) {
+        if($this->paivamaara >= date("Y-m-d")) {
+            return true;
+        }
+        return false;
+    }
+    
+    public function voikoTyontekijaPeruuttaa() {
+        if($this->paivamaara >= date("Y-m-d", time() - 60*60*24*7)) {
             return true;
         }
         return false;
@@ -141,12 +148,37 @@ class Varaus {
         
         return $ok;
     }
+    
+    public static function haeVaraus($tunnus) {
+        $sql = "SELECT varaus.tunnus, asiakas, paivamaara, aloitusaika, kesto, palvelu, toivomukset, tyontekija.tunnus as kampaaja "
+                . "FROM varaus, tyontekija "
+                . "WHERE varaus.tunnus = ? AND tyontekija = tyontekija.tunnus ";
+        
+        $kysely = getTietokantayhteys()->prepare($sql);
+        $kysely->execute(array($tunnus));
+
+        $tulos = $kysely->fetchObject();
+        
+        if ($tulos == null) {
+            return null;
+        } else {
+            $varaus = new Varaus();
+            $varaus->setAloitusaika($tulos->aloitusaika);
+            $varaus->setAsiakas(Asiakas::haeAsiakas($tulos->asiakas));
+            $varaus->setKesto($tulos->kesto);
+            $varaus->setPaivamaara($tulos->paivamaara);
+            $varaus->setPalvelu($tulos->palvelu);
+            $varaus->setTunnus($tulos->tunnus);
+            $varaus->setTyontekija($tulos->kampaaja);
+            $varaus->setToivomukset($tulos->toivomukset);
+   
+            return $varaus;
+        }
+        
+    }
 
     public static function haeAsiakkaanVaraukset($asiakas) {
-        $sql = "SELECT varaus.tunnus, paivamaara, aloitusaika, kesto, palvelu, tyontekija.tunnus as kampaaja "
-                . "FROM varaus, tyontekija "
-                . "WHERE asiakas = ? AND tyontekija = tyontekija.tunnus "
-                . "ORDER BY paivamaara DESC";
+        $sql = "SELECT tunnus FROM varaus WHERE asiakas = ? ORDER BY paivamaara DESC";
         
         $kysely = getTietokantayhteys()->prepare($sql);
         $kysely->execute(array($asiakas->getTunnus()));
@@ -157,20 +189,31 @@ class Varaus {
             $varaukset = array();
 
             foreach($kysely->fetchAll(PDO::FETCH_OBJ) as $tulos) {
-                $varaus = new Varaus();
-                $varaus->setAloitusaika($tulos->aloitusaika);
-                $varaus->setAsiakas($asiakas);
-                $varaus->setKesto($tulos->kesto);
-                $varaus->setPaivamaara($tulos->paivamaara);
-                $varaus->setPalvelu($tulos->palvelu);
-                $varaus->setTunnus($tulos->tunnus);
-                $varaus->setTyontekija($tulos->kampaaja);
+                $varaus = Varaus::haeVaraus($tulos->tunnus);
                 
                 $varaukset[] = $varaus;
             }
    
             return $varaukset;
         //}
+    }
+    
+    public static function haeTyontekijanVaraukset($tyontekija) {
+        $sql = "SELECT tunnus FROM varaus WHERE tyontekija = ? ORDER BY paivamaara DESC, aloitusaika DESC";
+        
+        $kysely = getTietokantayhteys()->prepare($sql);
+        $kysely->execute(array($tyontekija->getTunnus()));
+
+        $varaukset = array();
+
+        foreach($kysely->fetchAll(PDO::FETCH_OBJ) as $tulos) {
+            $varaus = Varaus::haeVaraus($tulos->tunnus);
+
+            $varaukset[] = $varaus;
+        }
+
+        return $varaukset;
+
     }
     
     public static function peruutaVaraus($id) {

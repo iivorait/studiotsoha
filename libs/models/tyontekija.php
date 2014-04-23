@@ -63,9 +63,9 @@ class Tyontekija {
     }
 
     public function lataaKalenteri($paivamaara) {
-        $sql = "SELECT aloitusaika, kesto FROM varaus WHERE tyontekija = $this->tunnus AND paivamaara = ?";
+        $sql = "SELECT aloitusaika, kesto FROM varaus WHERE tyontekija = ? AND paivamaara = ?";
         $kysely = getTietokantayhteys()->prepare($sql);
-        $kysely->execute(array($paivamaara));
+        $kysely->execute(array($this->tunnus, $paivamaara));
         
         $kalenteri = array();
 
@@ -157,6 +157,18 @@ class Tyontekija {
         return $palveluntarjoajat;
     }
     
-   
+    public static function haeTyontekijat() {
+        $sql = "SELECT tunnus FROM tyontekija ORDER BY nimi";
+        $kysely = getTietokantayhteys()->prepare($sql);
+        $kysely->execute();
+        
+        $tyontekijat = array();
+
+        foreach($kysely->fetchAll(PDO::FETCH_OBJ) as $tulos) {
+            $tyontekijat[] = Tyontekija::haeTyontekija($tulos->tunnus);
+        }
+
+        return $tyontekijat;
+    }
 
 }

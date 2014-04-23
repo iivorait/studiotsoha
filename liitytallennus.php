@@ -12,6 +12,7 @@ $asiakas->setPuhelinnumero($_POST['puhelinnumero']);
 $asiakas->setSahkoposti($_POST['sahkopostiosoite']);
 $asiakas->setSalasana($_POST['salasana']);
 $asiakas->salasananTarkistus($_POST['salasana2']);
+$asiakas->setKantaasiakas(1);
 
 if($asiakas->onkoKelvollinen()) {
     $asiakas->lisaaKantaan();
@@ -20,8 +21,12 @@ if($asiakas->onkoKelvollinen()) {
 
     $_SESSION['kirjautunut'] = $kayttaja;
     
-    header('Location: etusivu.php');
-    $_SESSION['ilmoitus'] = "Tervetuloa kanta-asiakkaaksi!";
+    if(isset($_SESSION['keskenerainenvaraus'])) { //palataan varauksen tallennukseen jos on keskeneräinen varaus
+        header('Location: varaatallennus.php');
+    } else {    
+        header('Location: etusivu.php');
+        $_SESSION['ilmoitus'] = "Tervetuloa kanta-asiakkaaksi!";
+    }
     
 } else {
     $virheet = implode("<br>", $asiakas->getVirheet());

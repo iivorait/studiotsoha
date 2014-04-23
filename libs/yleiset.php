@@ -5,6 +5,8 @@ require_once 'libs/models/tyontekija.php';
 require_once 'libs/models/varaus.php';
 require_once 'libs/models/palvelu.php';
 require_once 'libs/models/asiakas.php';
+require_once 'libs/models/palveluntarjoaja.php';
+require_once 'libs/models/tuntikirjaus.php';
 //Mallit täytyy ladata ennen istunnon aloittamista, jotta istuntoon tallennetut muuttujat deserialisoituvat oikein
 session_start(); 
 
@@ -51,6 +53,15 @@ function onkoTyontekija() {
 
 function onkoJohtaja() {
     return $_SESSION['kirjautunut']->getJohtaja();
+}
+
+function onkoKantaasiakas($ohjaus = false) {
+    if (!$_SESSION['kirjautunut']->getKantaasiakas() && $ohjaus) {
+        naytaNakyma("etusivu.php", array(
+            'virhe' => "Sinun täytyy olla kanta-asiakas, jotta voit muokata tietojasi.",
+        ));
+    }
+    return $_SESSION['kirjautunut']->getKantaasiakas();
 }
 
 function getKirjautunutKayttaja() {

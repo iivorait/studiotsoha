@@ -1,7 +1,5 @@
 <h2>Kalenteri</h2>
 
-<p>Todo: ei menneitä päiviä, päivämäärän validointi</p>
-
 <div class="row">
     <form class="form-horizontal" role="form" action="kalenteri.php" method="GET">
         <input type="hidden" name="palvelu" value="<?php echo $data->palvelu->getTunnus(); ?>" />
@@ -11,7 +9,7 @@
         <div class="col-md-4">
             <div class="form-group">
                 <div class="col-md-8">
-                    <input type="date" class="form-control" id="pvm" name="paivamaara" value="<?php echo $data->paivamaara; ?>">
+                    <input type="text" class="form-control" id="pvm" name="paivamaara" placeholder="pp.kk.vvvv" value="<?php echo $data->paivamaara; ?>">
                 </div>
                 <div class="col-md-3">
                     <button type="submit" name="siirry" class="btn btn-default">Siirry</button>

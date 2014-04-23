@@ -1,4 +1,9 @@
 <?php
-  require_once 'libs/yleiset.php';
 
-  naytaNakyma('tiedot.php');
+require_once 'libs/yleiset.php';
+
+$tyontekijat = Tyontekija::haeTyontekijat();
+
+naytaNakyma('tiedot.php', array(
+    "tyontekijat" => $tyontekijat
+));

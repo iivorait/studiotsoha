@@ -65,8 +65,9 @@
                     elseif(onkoTyontekija()) {  ?>
                         <div class="panel panel-default">
                             <ul class="nav nav-pills nav-stacked">
-                                <li><a href="varaukset.php">Varaukset</a></li>
-                                <li><a href="tyoaikojenkirjaus.php">Työaikojen kirjaus</a></li>
+                                <li><a href="admin_varaukset.php">Varaukset</a></li>
+                                <li><a href="admin_tyoaikojenkirjaus.php">Työaikojen kirjaus</a></li>
+                                <li><a href="admin_palvelutarjonta.php">Palvelutarjonta</a></li>
                                 <?php if(onkoJohtaja()) { ?>
                                     <li><a href="tyontekijat.php">Työntekijät</a></li>
                                     <li><a href="raportit.php">Raportit</a></li>
@@ -81,7 +82,9 @@
                         <div class="panel panel-default">
                             <ul class="nav nav-pills nav-stacked">
                                 <li><a href="varaukseni.php">Varaukseni</a></li>
-                                <li><a href="muokkaatietojani.php">Muokkaa tietojani</a></li>
+                                <?php if(onkoKantaasiakas()) { //vain kanta-asiakkaat voivat muokata tietojaan ?>
+                                    <li><a href="muokkaatietojani.php">Muokkaa tietojani</a></li>
+                                <?php } ?>
                                 <li><a href="kirjauduulos.php">Kirjaudu ulos</a></li>
                             </ul>
                         </div>

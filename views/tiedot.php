@@ -14,19 +14,30 @@
 <h3>Kampaajat</h3>
 
 <div class="row">
+
+<?php
+
+$luku = 0;
+
+foreach ($data->tyontekijat as $tyontekija) { 
+    ?>
     <div class="col-md-3">
-        <img src="html-demo/aino.png" alt="Aino" /> <br />
-        <b>Aino</b><br />
-        Yhteiskuntatieteiden parturi
+        <img src="html-demo/<?php echo strtolower($tyontekija->getNimi()); ?>.png" alt="" /> <br />
+        <b><?php echo $tyontekija->getNimi(); ?></b><br />
+        <?php echo $tyontekija->getKuvaus(); ?>
     </div>
-    <div class="col-md-3">
-        <img src="html-demo/maiju.png" alt="Maiju" /> <br />
-        <b>Maiju</b><br />
-        Diplomiparturi
-    </div>
-    <div class="col-md-3">
-        <img src="html-demo/hakan.png" alt="Håkan" /> <br />
-        <b>Håkan</b><br />
-        Datanomi
-    </div>
+    
+    <?php 
+
+    $luku++;
+
+    if($luku == 3) {
+        echo '</div><div class="row">';
+        $luku = 0;
+    }
+
+}
+
+?>
+
 </div>

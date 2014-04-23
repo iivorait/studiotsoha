@@ -178,7 +178,7 @@ class Asiakas {
                 . "VALUES (?,?,?,?,?,?,?,?,?)";
         $kysely = getTietokantayhteys()->prepare($sql);
         
-        $ok = $kysely->execute(array(1, $this->sahkoposti, $this->etunimi, 
+        $ok = $kysely->execute(array($this->kantaasiakas, $this->sahkoposti, $this->etunimi, 
             $this->sukunimi, $this->lahiosoite, $this->postinumero, $this->postitoimipaikka,
             $this->puhelinnumero, md5($this->salasana . salasanaSuola)));
         
@@ -208,13 +208,39 @@ class Asiakas {
         
         return $ok;
     }
+    
+    public function haeTunnus() {
+        $sql = "SELECT tunnus FROM asiakas WHERE sahkoposti = ? AND salasana = ? LIMIT 1";
+        $kysely = getTietokantayhteys()->prepare($sql);
+        $kysely->execute(array($this->sahkoposti, md5($this->salasana . salasanaSuola)));
+
+        $tulos = $kysely->fetchObject();
+        
+        $this->tunnus = $tulos->tunnus;
+    }
 
     /* Etsitään kannasta käyttäjätunnuksella ja salasanalla käyttäjäriviä */
 
     public static function etsiKayttajaTunnuksilla($sahkoposti, $salasana) {
-        $sql = "SELECT * FROM asiakas WHERE sahkoposti = ? AND salasana = ? AND kantaasiakas = 1 LIMIT 1";
+        $sql = "SELECT tunnus FROM asiakas WHERE sahkoposti = ? AND salasana = ? AND kantaasiakas = 1 LIMIT 1";
         $kysely = getTietokantayhteys()->prepare($sql);
         $kysely->execute(array($sahkoposti, md5($salasana . salasanaSuola)));
+
+        $tulos = $kysely->fetchObject();
+        
+        if ($tulos == null) {
+            return null;
+        } else {
+            $kayttaja = Asiakas::haeAsiakas($tulos->tunnus);
+   
+            return $kayttaja;
+        }
+    }
+    
+    public static function haeAsiakas($tunnus) {
+        $sql = "SELECT * FROM asiakas WHERE tunnus = ? LIMIT 1";
+        $kysely = getTietokantayhteys()->prepare($sql);
+        $kysely->execute(array($tunnus));
 
         $tulos = $kysely->fetchObject();
         
@@ -253,5 +279,22 @@ class Asiakas {
         return true;
     }
 
+    public static function haeKantaasiakkaat() {
+        $sql = "SELECT tunnus FROM asiakas WHERE kantaasiakas = 1 ORDER BY etunimi, sukunimi";
+        
+        $kysely = getTietokantayhteys()->prepare($sql);
+        $kysely->execute();
+        
+ 
+        $asiakkaat = array();
 
+        foreach($kysely->fetchAll(PDO::FETCH_OBJ) as $tulos) {
+            $asiakas = Asiakas::haeAsiakas($tulos->tunnus);
+
+            $asiakkaat[] = $asiakas;
+        }
+
+        return $asiakkaat;
+        
+    }
 }

@@ -9,22 +9,35 @@ if(!empty($_GET['palvelu'])) {
     $palvelu->setKesto(15);
 }
 
+
 if(isset($_GET['paivamaara'])) {
-    if(isset($_GET['edellinen'])) {
-        $paivamaara = date('Y-m-d',strtotime($_GET['paivamaara'] . ' - 1 day'));
-    } elseif (isset($_GET['seuraava'])) {
-        $paivamaara = date('Y-m-d',strtotime($_GET['paivamaara'] . ' + 1 day'));
+    $paivamaarapalaset = explode(".",$_GET['paivamaara']);
+    
+    if(checkdate($paivamaarapalaset[1], $paivamaarapalaset[0], $paivamaarapalaset[2])) {
+        if(isset($_GET['edellinen'])) {
+            $paivamaara = date('d.m.Y',strtotime($_GET['paivamaara'] . ' - 1 day'));
+        } elseif (isset($_GET['seuraava'])) {
+            $paivamaara = date('d.m.Y',strtotime($_GET['paivamaara'] . ' + 1 day'));
+        } else {
+            $paivamaara = $_GET['paivamaara'];
+        }
+        if(date('d.m.Y', strtotime($paivamaara)) < date('d.m.Y')) {
+            $paivamaara = date('d.m.Y');
+            $_SESSION['virheilmoitus'] = "Päivämäärä on jo mennyt.";
+        }
     } else {
-        $paivamaara = $_GET['paivamaara'];
+        $paivamaara = date('d.m.Y');
+        $_SESSION['virheilmoitus'] = "Päivämäärä ei ollut oikeassa muodossa.";
     }
+    
 } else {
-    $paivamaara = "2014-03-20"; //myöhemmin date("Y-m-d") tai date("d.m.Y")
+    $paivamaara = date("d.m.Y"); 
 }
 
 $tyontekijat = Tyontekija::haePalveluntarjoajat($palvelu->getTunnus());
 
 foreach ($tyontekijat as $tyontekija) {
-    $tyontekija->lataaKalenteri($paivamaara);
+    $tyontekija->lataaKalenteri(date('Y-m-d',strtotime($paivamaara)));
 }
 
 $tyoajat = getTyoajat();

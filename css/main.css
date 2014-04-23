@@ -20,3 +20,11 @@ a.vihrea {
 a.punainen {
     color: #c9302c;
 }
+
+.piilotettu {
+    display: none;
+}
+
+.nakyva {
+    display: table-row;
+}
