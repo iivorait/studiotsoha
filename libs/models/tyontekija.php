@@ -9,6 +9,7 @@ class Tyontekija {
     private $kuvaus;
     private $salasana;
     private $kalenteri;
+    private $virheet = array();
     
     public function getTunnus() {
         return $this->tunnus;
@@ -33,17 +34,41 @@ class Tyontekija {
     public function getSalasana() {
         return $this->salasana;
     }
+    
+    public function getKalenteri() {
+        return $this->kalenteri;
+    }
+    
+    public function getVirheet() {
+        return $this->virheet;
+    }
 
     public function setTunnus($tunnus) {
         $this->tunnus = $tunnus;
     }
 
     public function setSahkoposti($sahkoposti) {
+        if (trim($sahkoposti) == '') {
+            $this->virheet['sahkoposti'] = "Sähköpostiosoite ei saa olla tyhjä.";
+        } else if(filter_var($sahkoposti, FILTER_VALIDATE_EMAIL) != $sahkoposti) {
+            $this->virheet['sahkoposti'] = "Sähköpostiosoite ei ole oikean muotoinen.";
+        } else if(!Asiakas::onkoOsoiteVapaa($sahkoposti) && $this->sahkoposti!=$sahkoposti) {
+            $this->virheet['sahkoposti'] = "Sähköpostiosoite on varattu.";
+        } else {
+            unset($this->virheet['sahkoposti']);
+        }
+        
         $this->sahkoposti = $sahkoposti;
     }
 
     public function setNimi($nimi) {
         $this->nimi = $nimi;
+        
+        if (trim($nimi) == '') {
+            $this->virheet['nimi'] = "Nimi ei saa olla tyhjä.";
+        } else {
+            unset($this->virheet['nimi']);
+        }
     }
 
     public function setJohtaja($johtaja) {
@@ -56,10 +81,28 @@ class Tyontekija {
 
     public function setSalasana($salasana) {
         $this->salasana = $salasana;
+        
+        if (trim($salasana) == '') {
+            $this->virheet['salasana'] = "Salasana ei saa olla tyhjä.";
+        } else {
+            unset($this->virheet['salasana']);
+        }
     }
     
-    public function getKalenteri() {
-        return $this->kalenteri;
+    public function salasananTarkistus($salasana) {
+        if (trim($salasana) == '') {
+            $this->virheet['salasana'] = "Salasanan tarkistus ei saa olla tyhjä.";
+            $this->salasana = '';
+        } else if ($salasana != $this->salasana) {
+            $this->virheet['salasana'] = "Salasanan tarkistus ei täsmännyt";
+            $this->salasana = '';
+        } else {
+            unset($this->virheet['salasana']);
+        }
+    }
+    
+    public function onkoKelvollinen() {
+        return empty($this->virheet);
     }
 
     public function lataaKalenteri($paivamaara) {
@@ -87,7 +130,43 @@ class Tyontekija {
         $this->kalenteri = $kalenteri;
     }
     
-     public function haeTarjotutPalvelut() {
+    public function lisaaKantaan() {
+        $sql = "INSERT INTO tyontekija "
+                . "(sahkoposti, nimi, johtaja, kuvaus, salasana) "
+                . "VALUES (?,?,?,?,?)";
+        $kysely = getTietokantayhteys()->prepare($sql);
+        
+        $ok = $kysely->execute(array($this->sahkoposti, $this->nimi, $this->johtaja, 
+            $this->kuvaus, md5($this->salasana . salasanaSuola)));
+        
+        $this->tunnus = getTietokantayhteys()->lastInsertId('tunnus');
+        
+        return $ok;
+    }
+    
+    public function paivitaKantaan() {
+        $sql = "SELECT salasana FROM tyontekija WHERE tunnus = ?";
+        $salasananhakukysely = getTietokantayhteys()->prepare($sql);
+        $salasananhakukysely->execute(array($this->tunnus));
+
+        $tulos = $salasananhakukysely->fetchObject();
+        $salasana = $tulos->salasana;
+        
+        $sql = "UPDATE tyontekija SET sahkoposti = ?, nimi = ?, johtaja = ?, "
+                . "kuvaus = ?, salasana = ? WHERE tunnus = ?";
+        
+        if($salasana != $this->salasana) { //uuden salasanan asetus
+            $salasana = md5($this->salasana . salasanaSuola);
+        }
+        
+        $kysely = getTietokantayhteys()->prepare($sql);
+        $ok = $kysely->execute(array($this->sahkoposti, $this->nimi, $this->johtaja,
+            $this->kuvaus, $salasana, $this->tunnus));
+        
+        return $ok;
+    }
+    
+    public function haeTarjotutPalvelut() {
         $sql = "SELECT palvelu FROM palveluntarjoaja WHERE tyontekija = ?";
         $kysely = getTietokantayhteys()->prepare($sql);
         $kysely->execute(array($this->tunnus));
@@ -100,8 +179,34 @@ class Tyontekija {
 
         return $palvelut;
     }
+    
+    public function haeKuukaudenVaraukset($kuukausi, $vuosi) {
+        $sql = "SELECT tunnus FROM varaus WHERE tyontekija = ? AND paivamaara LIKE ?";
+        $kysely = getTietokantayhteys()->prepare($sql);
+        $kysely->execute(array($this->tunnus, $vuosi . '-' . sprintf('%02d', $kuukausi) . '-%')); 
+        
+        $varaukset = array();
 
-    /* Etsitään kannasta käyttäjätunnuksella ja salasanalla käyttäjäriviä */
+        foreach($kysely->fetchAll(PDO::FETCH_OBJ) as $tulos) {
+            $varaukset[] = Varaus::haeVaraus($tulos->tunnus);
+        }
+
+        return $varaukset;
+    }
+    
+    public function haeKuukaudenTyotunnit($kuukausi, $vuosi) {
+        $sql = "SELECT paivamaara FROM tuntikirjaus WHERE tyontekija = ? AND paivamaara LIKE ?";
+        $kysely = getTietokantayhteys()->prepare($sql);
+        $kysely->execute(array($this->tunnus, $vuosi . '-' . sprintf('%02d', $kuukausi) . '-%')); 
+        
+        $tuntikirjaukset = array();
+
+        foreach($kysely->fetchAll(PDO::FETCH_OBJ) as $tulos) {
+            $tuntikirjaukset[] = Tuntikirjaus::haeTuntikirjaus($this->tunnus, $tulos->paivamaara);
+        }
+
+        return $tuntikirjaukset;
+    }
 
     public static function etsiKayttajaTunnuksilla($sahkoposti, $salasana) {
         $sql = "SELECT tunnus FROM tyontekija WHERE sahkoposti = ? AND salasana = ? LIMIT 1";
@@ -169,6 +274,18 @@ class Tyontekija {
         }
 
         return $tyontekijat;
+    }
+    
+    public static function poistaTyontekija($tyontekija_id) {
+        $sql = "DELETE FROM tyontekija WHERE tunnus = ?";
+        $kysely = getTietokantayhteys()->prepare($sql);
+        $ok = $kysely->execute(array($tyontekija_id));
+        
+        if (file_exists("images/" . $tyontekija_id . ".jpg")) {
+            unlink("images/" . $tyontekija_id . ".jpg");
+        }
+        
+        return $ok;
     }
 
 }

@@ -5,7 +5,11 @@ require_once 'libs/yleiset.php';
 onkoKirjautunut(true);
 tarkistaKayttooikeus(true);
 
-$varaukset = Varaus::haeTyontekijanVaraukset(getKirjautunutKayttaja());
+if(onkoJohtaja()) {
+    $varaukset = Varaus::haeKaikkiVaraukset();
+} else {
+    $varaukset = Varaus::haeTyontekijanVaraukset(getKirjautunutKayttaja());
+}
 
 if(!isset($_GET['naytakaikki'])) {
     foreach($varaukset as $avain => $varaus) {

@@ -182,6 +182,8 @@ class Asiakas {
             $this->sukunimi, $this->lahiosoite, $this->postinumero, $this->postitoimipaikka,
             $this->puhelinnumero, md5($this->salasana . salasanaSuola)));
         
+        $this->tunnus = getTietokantayhteys()->lastInsertId('tunnus');
+        
         return $ok;
     }
     
@@ -208,18 +210,6 @@ class Asiakas {
         
         return $ok;
     }
-    
-    public function haeTunnus() {
-        $sql = "SELECT tunnus FROM asiakas WHERE sahkoposti = ? AND salasana = ? LIMIT 1";
-        $kysely = getTietokantayhteys()->prepare($sql);
-        $kysely->execute(array($this->sahkoposti, md5($this->salasana . salasanaSuola)));
-
-        $tulos = $kysely->fetchObject();
-        
-        $this->tunnus = $tulos->tunnus;
-    }
-
-    /* Etsitään kannasta käyttäjätunnuksella ja salasanalla käyttäjäriviä */
 
     public static function etsiKayttajaTunnuksilla($sahkoposti, $salasana) {
         $sql = "SELECT tunnus FROM asiakas WHERE sahkoposti = ? AND salasana = ? AND kantaasiakas = 1 LIMIT 1";
@@ -266,7 +256,7 @@ class Asiakas {
     public static function onkoOsoiteVapaa($sahkoposti) {
         $sql = "SELECT COUNT(1) AS asiakas, "
                 . "(SELECT COUNT(1) FROM tyontekija WHERE sahkoposti = ?) AS tyontekija "
-                . "FROM asiakas WHERE sahkoposti = ?";
+                . "FROM asiakas WHERE sahkoposti = ? AND kantaasiakas = 1";
         $kysely = getTietokantayhteys()->prepare($sql);
         $kysely->execute(array($sahkoposti, $sahkoposti));
 

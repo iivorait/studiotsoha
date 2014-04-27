@@ -8,7 +8,7 @@
     }
 ?>
 
-<form class="form-horizontal" role="form" action="palvelutallennus.php" method="post">
+<form class="form-horizontal" role="form" action="admin_palvelutallennus.php" method="post">
     <input type="hidden" name="tunnus" value="<?php echo $data->palvelu->getTunnus(); ?>" />
     <div class="form-group">
         <label for="nimi" class="col-sm-2 control-label">Nimi</label>

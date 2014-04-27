@@ -4,12 +4,13 @@ class Varaus {
     
     private $tunnus;
     private $tyontekija;
-    private $asiakas;
+    private $asiakas; //olio
     private $paivamaara;
     private $aloitusaika;
     private $kesto;
     private $palvelutunnus;
-    private $palvelu;
+    private $palvelu; //merkkijono
+    private $hinta;
     private $toivomukset;
     private $virheet = array();
 
@@ -45,6 +46,10 @@ class Varaus {
         return $this->palvelu;
     }
     
+    public function getHinta() {
+        return $this->hinta;
+    }
+
     public function getToivomukset() {
         return $this->toivomukset;
     }
@@ -109,6 +114,10 @@ class Varaus {
         }
     }
     
+    public function setHinta($hinta) {
+        $this->hinta = $hinta;
+    }
+    
     public function setToivomukset($toivomukset) {
         $this->toivomukset = $toivomukset;
     }
@@ -139,18 +148,38 @@ class Varaus {
     
     public function lisaaKantaan() {
         $sql = "INSERT INTO varaus "
-                . "(tyontekija, asiakas, paivamaara, aloitusaika, kesto, palvelu, toivomukset) "
-                . "VALUES (?,?,?,?,?,?,?)";
+                . "(tyontekija, asiakas, paivamaara, aloitusaika, kesto, palvelu, hinta, toivomukset) "
+                . "VALUES (?,?,?,?,?,?,?,?)";
         $kysely = getTietokantayhteys()->prepare($sql);
         
-        $ok = $kysely->execute(array($this->tyontekija->getTunnus(), $this->asiakas, $this->paivamaara,
-            date('H:i:s', strtotime($this->aloitusaika)), $this->kesto, $this->palvelu, $this->toivomukset));
+        $ok = $kysely->execute(array($this->tyontekija->getTunnus(), $this->asiakas->getTunnus(), $this->paivamaara,
+            date('H:i:s', strtotime($this->aloitusaika)), $this->kesto, $this->palvelu, $this->hinta, $this->toivomukset));
+        
+        $this->tunnus = getTietokantayhteys()->lastInsertId('tunnus');
         
         return $ok;
     }
     
+    public function lahetaVahvistusviesti () {
+        $salasana = md5($this->getTunnus() . $this->getPaivamaara() . $this->getToivomukset() . "323232spurspar");
+        
+        $viesti = "Kiitos varauksesta!.\r\n\r\n"
+                . "Kampaaja: " . $this->tyontekija->getNimi() . " \r\n"
+                . "Päivämäärä: " . date("d.m.Y", strtotime($this->paivamaara)) . " \r\n"
+                . "Kello: " . date('G:i',strtotime($this->aloitusaika)) . "\r\n\r\n"
+                . "Voit peruuttaa varauksen kirjautumalla sisään verkkopalveluumme tai linkistä "
+                . palvelunOsoite . '/peruutavaraus.php?varaus=' . $this->tunnus . '&salasana=' . $salasana;
+        
+        $viesti = wordwrap($viesti, 70);
+        
+        $otsakkeet = "Content-type: text/plain; charset=utf-8\r\n" .
+                "From: " . yllapitajanSahkoposti . "\n";
+        
+        mail($this->asiakas->getSahkoposti(), "Varausvahvistus", $viesti, $otsakkeet);
+    }
+    
     public static function haeVaraus($tunnus) {
-        $sql = "SELECT varaus.tunnus, asiakas, paivamaara, aloitusaika, kesto, palvelu, toivomukset, tyontekija.tunnus as kampaaja "
+        $sql = "SELECT varaus.tunnus, asiakas, paivamaara, aloitusaika, kesto, palvelu, hinta, toivomukset, tyontekija.tunnus as kampaaja "
                 . "FROM varaus, tyontekija "
                 . "WHERE varaus.tunnus = ? AND tyontekija = tyontekija.tunnus ";
         
@@ -168,6 +197,7 @@ class Varaus {
             $varaus->setKesto($tulos->kesto);
             $varaus->setPaivamaara($tulos->paivamaara);
             $varaus->setPalvelu($tulos->palvelu);
+            $varaus->setHinta($tulos->hinta);
             $varaus->setTunnus($tulos->tunnus);
             $varaus->setTyontekija($tulos->kampaaja);
             $varaus->setToivomukset($tulos->toivomukset);
@@ -182,20 +212,17 @@ class Varaus {
         
         $kysely = getTietokantayhteys()->prepare($sql);
         $kysely->execute(array($asiakas->getTunnus()));
-        
-        /*if ($tulokset == null) {
-            return null;
-        } else {*/
-            $varaukset = array();
 
-            foreach($kysely->fetchAll(PDO::FETCH_OBJ) as $tulos) {
-                $varaus = Varaus::haeVaraus($tulos->tunnus);
-                
-                $varaukset[] = $varaus;
-            }
-   
-            return $varaukset;
-        //}
+        $varaukset = array();
+
+        foreach($kysely->fetchAll(PDO::FETCH_OBJ) as $tulos) {
+            $varaus = Varaus::haeVaraus($tulos->tunnus);
+
+            $varaukset[] = $varaus;
+        }
+
+        return $varaukset;
+
     }
     
     public static function haeTyontekijanVaraukset($tyontekija) {
@@ -203,6 +230,24 @@ class Varaus {
         
         $kysely = getTietokantayhteys()->prepare($sql);
         $kysely->execute(array($tyontekija->getTunnus()));
+
+        $varaukset = array();
+
+        foreach($kysely->fetchAll(PDO::FETCH_OBJ) as $tulos) {
+            $varaus = Varaus::haeVaraus($tulos->tunnus);
+
+            $varaukset[] = $varaus;
+        }
+
+        return $varaukset;
+
+    }
+    
+    public static function haeKaikkiVaraukset() {
+        $sql = "SELECT tunnus FROM varaus ORDER BY paivamaara DESC, aloitusaika DESC";
+        
+        $kysely = getTietokantayhteys()->prepare($sql);
+        $kysely->execute();
 
         $varaukset = array();
 

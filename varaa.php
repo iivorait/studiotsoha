@@ -27,7 +27,7 @@ if ($tyontekija == null) {
 $aloitusaika = $_REQUEST['aika'];
 $toivomukset = $_REQUEST['toivomukset'];
 
-$tyontekija->lataaKalenteri($paiva);
+$tyontekija->lataaKalenteri(date("Y-m-d", strtotime($paiva)));
 $palvelut = $tyontekija->haeTarjotutPalvelut();
 
 $vapaatajat = getTyoajat();

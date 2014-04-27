@@ -13,6 +13,6 @@ if($palvelu==NULL) {
     $palvelu = new Palvelu();
 }
 
-naytaNakyma('palvelulomake.php', array(
+naytaNakyma('admin_palvelulomake.php', array(
     'palvelu' => $palvelu
 ));

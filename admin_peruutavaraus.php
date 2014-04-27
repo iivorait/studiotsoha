@@ -5,7 +5,11 @@ require_once 'libs/yleiset.php';
 onkoKirjautunut(true);
 onkoTyontekija(true);
 
-$varaukset = Varaus::haeTyontekijanVaraukset(getKirjautunutKayttaja());
+if(onkoJohtaja()) {
+    $varaukset = Varaus::haeKaikkiVaraukset();
+} else {
+    $varaukset = Varaus::haeTyontekijanVaraukset(getKirjautunutKayttaja());
+}
 
 $id = (int)$_GET['id'];
 $peruutusoikeus = false;

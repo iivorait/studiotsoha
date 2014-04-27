@@ -66,6 +66,7 @@ CREATE TABLE varaus
     aloitusaika time NOT NULL,
     kesto int(11) NOT NULL,
     palvelu varchar(100) NOT NULL,
+    hinta decimal(5,2) NOT NULL,
     toivomukset varchar(300),
     PRIMARY KEY (tunnus),
     FOREIGN KEY (tyontekija) REFERENCES tyontekija (tunnus)

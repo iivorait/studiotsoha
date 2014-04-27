@@ -69,8 +69,10 @@
                                 <li><a href="admin_tyoaikojenkirjaus.php">Työaikojen kirjaus</a></li>
                                 <li><a href="admin_palvelutarjonta.php">Palvelutarjonta</a></li>
                                 <?php if(onkoJohtaja()) { ?>
-                                    <li><a href="tyontekijat.php">Työntekijät</a></li>
-                                    <li><a href="raportit.php">Raportit</a></li>
+                                    <li><a href="admin_tyontekijat.php">Työntekijät</a></li>
+                                    <li><a href="admin_raportit.php">Raportit</a></li>
+                                <?php } else { ?>
+                                    <li><a href="admin_tyontekijalomake.php">Muokkaa tietojani</a></li>
                                 <?php } ?>
                                 <li><a href="kirjauduulos.php">Kirjaudu ulos</a></li>
                             </ul>

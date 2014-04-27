@@ -18,8 +18,6 @@ if(!isset($asiakas)) {
 
 if($asiakas->onkoKelvollinen()) {
     $asiakas->lisaaKantaan();
-    
-    $asiakas->haeTunnus();
 
     $_SESSION['kirjautunut'] = $asiakas;
     

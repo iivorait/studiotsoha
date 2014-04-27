@@ -36,7 +36,8 @@ if (empty($data->varaukset)) {
                         </td>
                         <td>
                             <?php if($varaus->voikoTyontekijaPeruuttaa()) { ?>
-                                <a href="admin_peruutavaraus.php?id=<?php echo $varaus->getTunnus(); ?>" class="punainen">peruuta varaus</a>
+                                <a href="admin_peruutavaraus.php?id=<?php echo $varaus->getTunnus(); ?>" class="punainen"
+                                   onclick="return confirm('Haluatko varmasti peruuttaa varauksen?')">peruuta varaus</a>
                             <?php } ?>
                         </td>
                     </tr>

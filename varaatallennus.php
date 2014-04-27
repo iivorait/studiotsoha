@@ -13,6 +13,7 @@ if(!isset($_SESSION['keskenerainenvaraus'])) { //tultiin varauslomakkeesta
     
     $varaus->setKesto($palvelu->getKesto());
     $varaus->setPalvelu($palvelu->getNimi());
+    $varaus->setHinta($palvelu->getHinta());
     $varaus->setPalvelutunnus($palvelu->getTunnus());
     $varaus->setPaivamaara(date('Y-m-d', strtotime($_POST['paiva'])));
     $varaus->setToivomukset($_POST['toivomukset']);
@@ -25,7 +26,7 @@ if(!isset($_SESSION['keskenerainenvaraus'])) { //tultiin varauslomakkeesta
 
 if($varaus->onkoKelvollinen()) {
     
-    if(onkoTyontekija()) {
+    if(onkoKirjautunut() && onkoTyontekija()) {
         $_SESSION['keskenerainenvaraus'] = $varaus;
         
         $kantaasiakkaat = Asiakas::haeKantaasiakkaat();
@@ -36,7 +37,7 @@ if($varaus->onkoKelvollinen()) {
         ));
     }
     elseif(onkoKirjautunut()) {
-        $varaus->setAsiakas(getKirjautunutKayttaja()->getTunnus());
+        $varaus->setAsiakas(getKirjautunutKayttaja());
     }
     else //Ei kirjautunut
     {
@@ -47,6 +48,7 @@ if($varaus->onkoKelvollinen()) {
     }
     
     $varaus->lisaaKantaan();
+    $varaus->lahetaVahvistusviesti();
     
     header('Location: varaukseni.php');
     $_SESSION['ilmoitus'] = "Varaus on tehty.";

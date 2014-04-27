@@ -24,16 +24,15 @@ if($_POST['asiakas']!=0) {
 
 if($asiakas->onkoKelvollinen()||$asiakas->getTunnus()!="") {
     $asiakas->lisaaKantaan();
-    
-    $asiakas->haeTunnus();
 
     $varaus = $_SESSION['keskenerainenvaraus'];
     unset($_SESSION['keskenerainenvaraus']);
     
-    $varaus->setAsiakas($asiakas->getTunnus());
+    $varaus->setAsiakas($asiakas);
     
     $varaus->lisaaKantaan();
-    
+    $varaus->lahetaVahvistusviesti();
+
     header('Location: admin_varaukset.php');
     $_SESSION['ilmoitus'] = "Varaus on tehty.";
     

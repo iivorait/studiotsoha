@@ -24,7 +24,8 @@ if (empty($data->varaukset)) {
                         <td><?php echo $varaus->getPalvelu(); ?></td>
                         <td>
                             <?php if($varaus->voikoPeruuttaa()) { ?>
-                                <a href="peruutavaraus.php?id=<?php echo $varaus->getTunnus(); ?>" class="punainen">peruuta varaus</a>
+                                <a href="peruutavaraus.php?id=<?php echo $varaus->getTunnus(); ?>" class="punainen"
+                                   onclick="return confirm('Haluatko varmasti peruuttaa varauksen?')">peruuta varaus</a>
                             <?php } ?>
                         </td>
                     </tr>

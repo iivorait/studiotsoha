@@ -4,7 +4,7 @@
     <div class="form-group">
         <label class="col-sm-2 control-label">Päivämäärä</label>
         <div class="col-md-4">
-            <?php echo htmlspecialchars($data->tuntikirjaus->getPaivamaara()); ?>
+            <?php echo htmlspecialchars(date("d.m.Y", strtotime($data->tuntikirjaus->getPaivamaara()))); ?>
             <input type="hidden" name="paivamaara" value="<?php echo htmlspecialchars($data->tuntikirjaus->getPaivamaara()); ?>" />
         </div>
     </div>

@@ -57,6 +57,10 @@ class Tuntikirjaus {
     public function onkoKelvollinen() {
         return empty($this->virheet);
     }
+    
+    public function getVirheet() {
+        return $this->virheet;
+    }
 
     public function ylikirjoitaKantaan() {
         $sql = "DELETE FROM tuntikirjaus WHERE tyontekija = ? AND paivamaara = ?";

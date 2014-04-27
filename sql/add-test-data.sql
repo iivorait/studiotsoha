@@ -28,10 +28,10 @@ INSERT INTO tuntikirjaus (tyontekija, paivamaara, tuntimaara, kommentti) VALUES
 (3, '2014-03-18', 3, NULL),
 (3, '2014-03-19', 7, 'Värit kaatui lattialle, meni vähän aikaa siivotessa');
 
-INSERT INTO varaus (tunnus, tyontekija, asiakas, paivamaara, aloitusaika, kesto, palvelu) VALUES
-(1, 1, 1, '2014-03-20', '09:00:00', 240, 'permanentti', ''),
-(2, 2, 3, '2014-03-20', '11:00:00', 240, 'hiusten pidennys', '30 sentin puntti'),
-(3, 3, 2, '2014-03-20', '09:00:00', 180, 'hiusten höyläys', ''),
-(4, 3, 1, '2014-03-20', '16:00:00', 60, 'kaljun värjäys', 'punaiseksi kiitos'),
-(5, 3, 1, '2014-04-04', '15:00:00', 60, 'vaalennus', '');
+INSERT INTO varaus (tunnus, tyontekija, asiakas, paivamaara, aloitusaika, kesto, palvelu, hinta, toivomukset) VALUES
+(1, 1, 1, '2014-03-20', '09:00:00', 60, 'Hiustenleikkuu', 30.00, ''),
+(2, 2, 3, '2014-03-20', '11:00:00', 120, 'Hiusten värjäys', 50.00, 'vaaleasta punaiseksi'),
+(3, 3, 2, '2014-03-20', '09:00:00', 60, 'Päänahan värjäys', 20.00, 'mustaksi'),
+(4, 2, 1, '2014-03-21', '16:00:00', 60, 'Hiustenleikkuu', 30.00, ''),
+(5, 1, 1, '2014-04-04', '15:00:00', 60, 'Hiustenleikkuu', 30.00, '');
 

@@ -6,7 +6,7 @@
     09001 HAXBÖLE
 </p>
 
-<iframe width="390" height="150" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="http://maps.google.fi/maps?q=Hakkila, Vantaa&amp;output=embed&amp;iwloc=near"></iframe>
+<iframe width="390" height="150" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.fi/maps?q=Hakkila, Vantaa&amp;output=embed&amp;iwloc=near"></iframe>
 
 
 <hr />
@@ -22,7 +22,7 @@ $luku = 0;
 foreach ($data->tyontekijat as $tyontekija) { 
     ?>
     <div class="col-md-3">
-        <img src="html-demo/<?php echo strtolower($tyontekija->getNimi()); ?>.png" alt="" /> <br />
+        <img height="150" src="images/<?php echo $tyontekija->getTunnus(); ?>.jpg" alt="" /> <br />
         <b><?php echo $tyontekija->getNimi(); ?></b><br />
         <?php echo $tyontekija->getKuvaus(); ?>
     </div>
